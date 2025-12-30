@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use gpui::*;
 use gpui::prelude::FluentBuilder;
 use gpui_component::{button::*, *};
@@ -167,6 +169,8 @@ fn main() {
         // This must be called before using any GPUI Component features.
         gpui_component::init(cx);
 
+        init(cx);
+
         cx.spawn(async move |cx| {
             cx.open_window(WindowOptions::default(), |window, cx| {
                 let view = cx.new(|_| TodoApp::new());
@@ -178,4 +182,20 @@ fn main() {
         })
         .detach();
     });
+}
+
+fn init(cx: &mut App) {
+    let theme_name = SharedString::from("Ayu Light");
+    // Load and watch themes from ./themes directory
+    if let Err(err) = ThemeRegistry::watch_dir(PathBuf::from("./themes"), cx, move |cx| {
+        if let Some(theme) = ThemeRegistry::global(cx)
+            .themes()
+            .get(&theme_name)
+            .cloned()
+        {
+            Theme::global_mut(cx).apply_config(&theme);
+        }
+    }) {
+        panic!("Failed to watch themes directory: {}", err);
+    }
 }
