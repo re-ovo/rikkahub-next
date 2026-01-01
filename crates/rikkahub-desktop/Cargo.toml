@@ -1,0 +1,21 @@
+[package]
+name = "rikkahub-desktop"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "rikkahub"
+path = "src/main.rs"
+
+[dependencies]
+rikkahub-core.workspace = true
+rikkahub-api.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+reqwest.workspace = true
+gpui.workspace = true
+gpui-component.workspace = true

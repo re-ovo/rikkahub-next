@@ -1,10 +1,42 @@
-[package]
-name = "rikkahub-desktop"
+[workspace]
+resolver = "2"
+members = [
+    "crates/rikkahub-core",
+    "crates/rikkahub-api",
+    "crates/rikkahub-desktop",
+    "crates/rikkahub-server",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
-anyhow = "1.0.100"
+[workspace.dependencies]
+# 内部 crates
+rikkahub-core = { path = "crates/rikkahub-core" }
+rikkahub-api = { path = "crates/rikkahub-api" }
+
+# 通用
+anyhow = "1.0"
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# API 层
+axum = "0.8"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace", "compression-gzip"] }
+
+# 桌面端
 gpui = "0.2.2"
 gpui-component = "0.5.0"
 gpui-component-assets = "0.5.0"
+
+# HTTP 客户端
+reqwest = { version = "0.12", features = ["json"] }
+
+# 工具
+uuid = { version = "1.0", features = ["v4", "serde"] }
