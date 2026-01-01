@@ -1,10 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/rikkahub-core",
-    "crates/rikkahub-api",
-    "crates/rikkahub-desktop",
-    "crates/rikkahub-server",
+    "crates/core",
+    "crates/desktop",
+    "crates/server",
 ]
 
 [workspace.package]
@@ -13,8 +12,7 @@ edition = "2024"
 
 [workspace.dependencies]
 # 内部 crates
-rikkahub-core = { path = "crates/rikkahub-core" }
-rikkahub-api = { path = "crates/rikkahub-api" }
+core = { path = "crates/core" }
 
 # 通用
 anyhow = "1.0"
@@ -25,7 +23,7 @@ tokio = { version = "1.0", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-# API 层
+# Server 端
 axum = "0.8"
 tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "trace", "compression-gzip"] }

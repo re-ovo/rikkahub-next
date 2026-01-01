@@ -5,7 +5,7 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use rikkahub_core::{ChatRequest, ChatResponse, Conversation, Message, Model, Role};
+use core::{ChatRequest, ChatResponse, Conversation, Message, Model, Role};
 
 use crate::AppState;
 

@@ -7,7 +7,7 @@ pub struct AppState {
 }
 
 struct AppStateInner {
-    // TODO: 添加数据库连接、配置等
+    // TODO: 添加数据库连接、Redis、配置等
 }
 
 impl AppState {

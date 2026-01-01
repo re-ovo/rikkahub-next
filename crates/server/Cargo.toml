@@ -1,17 +1,18 @@
 [package]
-name = "rikkahub-server"
+name = "server"
 version.workspace = true
 edition.workspace = true
 
 [[bin]]
-name = "rikkahub-server"
+name = "server"
 path = "src/main.rs"
 
 [dependencies]
-rikkahub-core.workspace = true
-rikkahub-api.workspace = true
+core.workspace = true
 anyhow.workspace = true
 tokio.workspace = true
 axum.workspace = true
+tower-http.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+uuid.workspace = true

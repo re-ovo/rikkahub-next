@@ -1,5 +1,5 @@
 [package]
-name = "rikkahub-desktop"
+name = "desktop"
 version.workspace = true
 edition.workspace = true
 
@@ -8,8 +8,7 @@ name = "rikkahub"
 path = "src/main.rs"
 
 [dependencies]
-rikkahub-core.workspace = true
-rikkahub-api.workspace = true
+core.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true

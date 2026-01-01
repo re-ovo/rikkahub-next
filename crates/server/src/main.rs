@@ -1,11 +1,31 @@
 //! RikkaHub 独立服务器
 //!
-//! 用于部署到服务器，提供 API 服务
+//! 用于部署到服务器/Docker，提供 API 服务
+
+mod handlers;
+mod state;
 
 use anyhow::Result;
-use rikkahub_api::{create_router, AppState};
+use axum::Router;
+use state::AppState;
 use tokio::net::TcpListener;
+use tower_http::{compression::CompressionLayer, cors::CorsLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+/// 创建 API 路由
+fn create_router(state: AppState) -> Router {
+    let api_routes = Router::new()
+        .nest("/chat", handlers::chat_routes())
+        .nest("/models", handlers::model_routes())
+        .nest("/conversations", handlers::conversation_routes());
+
+    Router::new()
+        .nest("/api", api_routes)
+        .layer(CompressionLayer::new())
+        .layer(TraceLayer::new_for_http())
+        .layer(CorsLayer::permissive())
+        .with_state(state)
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
