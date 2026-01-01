@@ -29,6 +29,9 @@ fn create_router(state: AppState) -> Router {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // 加载 .env 文件
+    dotenvy::dotenv().ok();
+
     // 初始化日志
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer())
