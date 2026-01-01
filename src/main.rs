@@ -2,163 +2,315 @@ use std::path::PathBuf;
 
 use gpui::*;
 use gpui::prelude::FluentBuilder;
-use gpui_component::{button::*, *};
+use gpui_component::{button::*, scroll::ScrollableElement, *};
 
-// Todo数据项
+// 会话数据
 #[derive(Clone)]
-struct TodoItem {
-    text: String,
-    completed: bool,
+struct Conversation {
+    name: String,
+    avatar: String,
+    last_message: String,
+    time: String,
 }
 
-// Todo应用主组件
-pub struct TodoApp {
-    items: Vec<TodoItem>,
+// 消息数据
+#[derive(Clone)]
+struct Message {
+    content: String,
+    is_self: bool,
+    time: String,
 }
 
-impl TodoApp {
+// 聊天应用主组件
+pub struct ChatApp {
+    conversations: Vec<Conversation>,
+    selected_conversation: Option<usize>,
+    messages: Vec<Message>,
+}
+
+impl ChatApp {
     fn new() -> Self {
-        // 添加一些示例待办事项
         Self {
-            items: vec![
-                TodoItem {
-                    text: "学习 GPUI 框架".to_string(),
-                    completed: false,
+            conversations: vec![
+                Conversation {
+                    name: "Alice".to_string(),
+                    avatar: "👩".to_string(),
+                    last_message: "晚上一起吃饭吗？".to_string(),
+                    time: "18:30".to_string(),
                 },
-                TodoItem {
-                    text: "编写 Todo 应用".to_string(),
-                    completed: true,
+                Conversation {
+                    name: "Bob".to_string(),
+                    avatar: "👨".to_string(),
+                    last_message: "好的，没问题".to_string(),
+                    time: "17:45".to_string(),
                 },
-                TodoItem {
-                    text: "添加更多功能".to_string(),
-                    completed: false,
+                Conversation {
+                    name: "Charlie".to_string(),
+                    avatar: "🧑".to_string(),
+                    last_message: "周末见！".to_string(),
+                    time: "15:20".to_string(),
+                },
+                Conversation {
+                    name: "David".to_string(),
+                    avatar: "👦".to_string(),
+                    last_message: "收到，谢谢".to_string(),
+                    time: "14:10".to_string(),
+                },
+            ],
+            selected_conversation: Some(0),
+            messages: vec![
+                Message {
+                    content: "嗨，最近怎么样？".to_string(),
+                    is_self: false,
+                    time: "18:20".to_string(),
+                },
+                Message {
+                    content: "还不错，你呢？".to_string(),
+                    is_self: true,
+                    time: "18:22".to_string(),
+                },
+                Message {
+                    content: "我也挺好的，晚上一起吃饭吗？".to_string(),
+                    is_self: false,
+                    time: "18:25".to_string(),
+                },
+                Message {
+                    content: "好啊！去哪里吃？".to_string(),
+                    is_self: true,
+                    time: "18:28".to_string(),
+                },
+                Message {
+                    content: "去那家新开的日料店？".to_string(),
+                    is_self: false,
+                    time: "18:30".to_string(),
                 },
             ],
         }
     }
 
-    // 添加新的示例Todo
-    fn add_sample_todo(&mut self, _: &ClickEvent, _: &mut Window, cx: &mut Context<Self>) {
-        self.items.push(TodoItem {
-            text: format!("新任务 #{}", self.items.len() + 1),
-            completed: false,
-        });
+    // 选择会话
+    fn select_conversation(&mut self, index: usize, _: &ClickEvent, _: &mut Window, cx: &mut Context<Self>) {
+        self.selected_conversation = Some(index);
         cx.notify();
     }
 
-    // 删除Todo
-    fn remove_todo(&mut self, index: usize, _: &ClickEvent, _: &mut Window, cx: &mut Context<Self>) {
-        if index < self.items.len() {
-            self.items.remove(index);
-            cx.notify();
-        }
-    }
-
-    // 切换完成状态
-    fn toggle_todo(&mut self, index: usize, _: &ClickEvent, _: &mut Window, cx: &mut Context<Self>) {
-        if let Some(item) = self.items.get_mut(index) {
-            item.completed = !item.completed;
-            cx.notify();
-        }
-    }
-}
-
-impl Render for TodoApp {
-    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let total = self.items.len();
-        let completed = self.items.iter().filter(|item| item.completed).count();
-        let pending = total - completed;
-
+    // 渲染左侧侧边栏
+    fn render_sidebar(&mut self, cx: &mut Context<Self>) -> impl IntoElement {
         div()
+            .w(px(280.))
+            .h_full()
             .v_flex()
-            .gap_3()
-            .size_full()
-            .p_4()
-            .bg(rgb(0xf5f5f5))
-            // 标题
+            .bg(rgb(0xf8f9fa))
+            .border_r_1()
+            .border_color(rgb(0xe9ecef))
+            // 顶部标题栏
             .child(
                 div()
-                    .text_2xl()
-                    .font_bold()
-                    .text_color(rgb(0x333333))
-                    .child("📝 Todo 应用")
-            )
-            // 添加按钮区域
-            .child(
-                div()
-                    .h_flex()
-                    .gap_2()
+                    .h(px(60.))
+                    .p_4()
+                    .border_b_1()
+                    .border_color(rgb(0xe9ecef))
+                    .flex()
+                    .items_center()
                     .child(
-                        Button::new("add-btn")
-                            .primary()
-                            .label("添加示例任务")
-                            .on_click(cx.listener(Self::add_sample_todo))
+                        div()
+                            .text_xl()
+                            .font_bold()
+                            .text_color(rgb(0x212529))
+                            .child("💬 消息")
                     )
             )
-            // 统计信息
+            // 会话列表
             .child(
                 div()
-                    .text_sm()
-                    .text_color(rgb(0x666666))
-                    .child(format!(
-                        "总计: {} | 已完成: {} | 未完成: {}",
-                        total, completed, pending
-                    ))
-            )
-            // Todo列表
-            .child(
-                div()
+                    .id("conversation-list")
                     .v_flex()
-                    .gap_2()
                     .flex_1()
+                    .overflow_y_scrollbar()
                     .children(
-                        self.items.iter().enumerate().map(|(index, item)| {
+                        self.conversations.iter().enumerate().map(|(index, conv)| {
+                            let is_selected = self.selected_conversation == Some(index);
                             div()
+                                .id(("conversation", index))
                                 .h_flex()
                                 .gap_3()
-                                .items_center()
                                 .p_3()
-                                .border_1()
-                                .border_color(rgb(0xdddddd))
-                                .rounded_md()
-                                .bg(rgb(0xffffff))
-                                .when(item.completed, |el| {
-                                    el.bg(rgb(0xe8f5e9))
-                                })
-                                // 完成状态按钮
-                                .child(
-                                    Button::new(("toggle", index))
-                                        .label(if item.completed { "✓" } else { "○" })
-                                        .on_click(cx.listener(move |this, event, window, cx| {
-                                            this.toggle_todo(index, event, window, cx);
-                                        }))
-                                )
-                                // Todo文本
+                                .items_center()
+                                .cursor_pointer()
+                                .bg(if is_selected { rgb(0xe7f3ff) } else { rgb(0xf8f9fa) })
+                                .hover(|s| s.bg(rgb(0xf1f3f5)))
+                                .on_click(cx.listener(move |this, event, window, cx| {
+                                    this.select_conversation(index, event, window, cx);
+                                }))
+                                // 头像
                                 .child(
                                     div()
-                                        .flex_1()
-                                        .text_color(if item.completed {
-                                            rgb(0x888888)
-                                        } else {
-                                            rgb(0x333333)
-                                        })
-                                        .when(item.completed, |el| {
-                                            el.font_weight(FontWeight::LIGHT)
-                                        })
-                                        .child(item.text.clone())
+                                        .size(px(48.))
+                                        .flex()
+                                        .items_center()
+                                        .justify_center()
+                                        .rounded(px(24.))
+                                        .bg(rgb(0xdee2e6))
+                                        .text_2xl()
+                                        .child(conv.avatar.clone())
                                 )
-                                // 删除按钮
+                                // 会话信息
                                 .child(
-                                    Button::new(("delete", index))
-                                        .ghost()
-                                        .label("删除")
-                                        .on_click(cx.listener(move |this, event, window, cx| {
-                                            this.remove_todo(index, event, window, cx);
-                                        }))
+                                    div()
+                                        .v_flex()
+                                        .gap_1()
+                                        .flex_1()
+                                        .child(
+                                            div()
+                                                .h_flex()
+                                                .justify_between()
+                                                .items_center()
+                                                .child(
+                                                    div()
+                                                        .font_semibold()
+                                                        .text_color(rgb(0x212529))
+                                                        .child(conv.name.clone())
+                                                )
+                                                .child(
+                                                    div()
+                                                        .text_xs()
+                                                        .text_color(rgb(0x868e96))
+                                                        .child(conv.time.clone())
+                                                )
+                                        )
+                                        .child(
+                                            div()
+                                                .text_sm()
+                                                .text_color(rgb(0x868e96))
+                                                .child(conv.last_message.clone())
+                                        )
                                 )
                         })
                     )
             )
+    }
+
+    // 渲染右侧聊天区域
+    fn render_chat_area(&mut self, _cx: &mut Context<Self>) -> impl IntoElement {
+        let selected_name = self.selected_conversation
+            .and_then(|idx| self.conversations.get(idx))
+            .map(|conv| conv.name.clone())
+            .unwrap_or_else(|| "未选择".to_string());
+
+        div()
+            .flex_1()
+            .h_full()
+            .v_flex()
+            .bg(rgb(0xffffff))
+            // 顶部标题栏
+            .child(
+                div()
+                    .h(px(60.))
+                    .px_4()
+                    .border_b_1()
+                    .border_color(rgb(0xe9ecef))
+                    .flex()
+                    .items_center()
+                    .child(
+                        div()
+                            .text_lg()
+                            .font_semibold()
+                            .text_color(rgb(0x212529))
+                            .child(selected_name)
+                    )
+            )
+            // 消息列表
+            .child(
+                div()
+                    .id("message-list")
+                    .flex_1()
+                    .v_flex()
+                    .gap_3()
+                    .p_4()
+                    .overflow_y_scrollbar()
+                    .bg(rgb(0xf8f9fa))
+                    .children(
+                        self.messages.iter().map(|msg| {
+                            div()
+                                .h_flex()
+                                .when(msg.is_self, |el| el.justify_end())
+                                .child(
+                                    div()
+                                        .v_flex()
+                                        .gap_1()
+                                        .max_w(px(400.))
+                                        .child(
+                                            div()
+                                                .p_3()
+                                                .rounded(px(12.))
+                                                .bg(if msg.is_self {
+                                                    rgb(0x0084ff)
+                                                } else {
+                                                    rgb(0xffffff)
+                                                })
+                                                .text_color(if msg.is_self {
+                                                    rgb(0xffffff)
+                                                } else {
+                                                    rgb(0x212529)
+                                                })
+                                                .border_1()
+                                                .border_color(if msg.is_self {
+                                                    rgb(0x0084ff)
+                                                } else {
+                                                    rgb(0xdee2e6)
+                                                })
+                                                .child(msg.content.clone())
+                                        )
+                                        .child(
+                                            div()
+                                                .text_xs()
+                                                .text_color(rgb(0x868e96))
+                                                .when(msg.is_self, |el| el.text_right())
+                                                .child(msg.time.clone())
+                                        )
+                                )
+                        })
+                    )
+            )
+            // 底部输入区域
+            .child(
+                div()
+                    .h(px(80.))
+                    .p_4()
+                    .border_t_1()
+                    .border_color(rgb(0xe9ecef))
+                    .h_flex()
+                    .gap_2()
+                    .items_center()
+                    .child(
+                        div()
+                            .flex_1()
+                            .h(px(48.))
+                            .px_3()
+                            .rounded(px(24.))
+                            .border_1()
+                            .border_color(rgb(0xdee2e6))
+                            .flex()
+                            .items_center()
+                            .text_color(rgb(0x868e96))
+                            .child("输入消息...")
+                    )
+                    .child(
+                        Button::new("send-btn")
+                            .primary()
+                            .label("发送")
+                    )
+            )
+    }
+}
+
+impl Render for ChatApp {
+    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .h_flex()
+            .size_full()
+            .child(self.render_sidebar(cx))
+            .child(self.render_chat_area(cx))
     }
 }
 
@@ -173,7 +325,7 @@ fn main() {
 
         cx.spawn(async move |cx| {
             cx.open_window(WindowOptions::default(), |window, cx| {
-                let view = cx.new(|_| TodoApp::new());
+                let view = cx.new(|_| ChatApp::new());
                 // This first level on the window, should be a Root.
                 cx.new(|cx| Root::new(view, window, cx))
             })?;
