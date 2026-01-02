@@ -135,10 +135,6 @@ SELECT id, '*' FROM groups WHERE code = 'admin';
 -- 普通用户基础权限
 INSERT INTO group_permissions (group_id, permission)
 SELECT id, unnest(ARRAY[
-    'chat.send',
-    'chat.read',
-    'model.gpt-3.5-turbo.use',
-    'conversation.create',
-    'conversation.read',
-    'conversation.delete'
+    'conversation.*',
+    'model.*',
 ]) FROM groups WHERE code = 'user';
