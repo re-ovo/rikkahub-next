@@ -20,3 +20,7 @@ dotenvy.workspace = true
 casbin.workspace = true
 sqlx.workspace = true
 jsonwebtoken.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+argon2.workspace = true

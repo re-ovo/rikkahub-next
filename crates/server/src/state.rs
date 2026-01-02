@@ -1,3 +1,6 @@
+//! 应用状态
+
+use sqlx::PgPool;
 use std::sync::Arc;
 
 /// 应用状态
@@ -7,19 +10,20 @@ pub struct AppState {
 }
 
 struct AppStateInner {
-    // TODO: 添加数据库连接、Redis、配置等
+    /// 数据库连接池
+    db: PgPool,
 }
 
 impl AppState {
-    pub fn new() -> Self {
+    /// 创建新的应用状态
+    pub fn new(db: PgPool) -> Self {
         Self {
-            inner: Arc::new(AppStateInner {}),
+            inner: Arc::new(AppStateInner { db }),
         }
     }
-}
 
-impl Default for AppState {
-    fn default() -> Self {
-        Self::new()
+    /// 获取数据库连接池
+    pub fn db(&self) -> &PgPool {
+        &self.inner.db
     }
 }

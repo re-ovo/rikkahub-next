@@ -2,11 +2,14 @@
 //!
 //! 用于部署到服务器/Docker，提供 API 服务
 
+pub mod entities;
 mod handlers;
+pub mod repositories;
 mod state;
 
 use anyhow::Result;
 use axum::Router;
+use sqlx::postgres::PgPoolOptions;
 use state::AppState;
 use tokio::net::TcpListener;
 use tower_http::{compression::CompressionLayer, cors::CorsLayer, trace::TraceLayer};
@@ -43,8 +46,21 @@ async fn main() -> Result<()> {
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
     let addr = format!("{}:{}", host, port);
 
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    // 创建数据库连接池
+    tracing::info!("正在连接数据库...");
+    let pool = PgPoolOptions::new()
+        .max_connections(10)
+        .connect(&database_url)
+        .await?;
+
+    // 运行数据库迁移
+    tracing::info!("正在运行数据库迁移...");
+    sqlx::migrate!("./migrations").run(&pool).await?;
+
     // 创建应用状态
-    let state = AppState::new();
+    let state = AppState::new(pool);
 
     // 创建路由
     let app = create_router(state);

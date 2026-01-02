@@ -1,9 +1,9 @@
 //! API 路由处理器
 
 use axum::{
+    Json, Router,
     extract::State,
     routing::{get, post},
-    Json, Router,
 };
 use core::{ChatRequest, ChatResponse, Conversation, Message, Model, Role};
 
