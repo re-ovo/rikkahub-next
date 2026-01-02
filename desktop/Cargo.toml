@@ -3,7 +3,6 @@ resolver = "2"
 members = [
     "crates/core",
     "crates/desktop",
-    "crates/server",
 ]
 
 [workspace.package]
@@ -23,12 +22,6 @@ tokio = { version = "1.0", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
-# Server 端
-axum = "0.8"
-axum-extra = { version = "0.10", features = ["typed-header"] }
-tower = "0.5"
-tower-http = { version = "0.6", features = ["cors", "trace", "compression-gzip"] }
-
 # 桌面端
 gpui = "0.2.2"
 gpui-component = "0.5.0"
@@ -40,10 +33,3 @@ reqwest = { version = "0.12", features = ["json"] }
 # 工具
 uuid = { version = "1.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-dotenvy = "0.15"
-
-# 数据库 & 认证 & 权限
-sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "macros", "chrono", "uuid"] }
-jsonwebtoken = "9.3"
-casbin = { version = "2.19", default-features = false, features = ["runtime-tokio", "incremental"] }
-argon2 = "0.5"
