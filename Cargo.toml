@@ -25,6 +25,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Server 端
 axum = "0.8"
+axum-extra = { version = "0.10", features = ["typed-header"] }
 tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "trace", "compression-gzip"] }
 

@@ -1,10 +1,12 @@
 pub mod entities;
 mod handlers;
+pub mod middleware;
 pub mod repositories;
 mod state;
 
 use anyhow::Result;
 use axum::Router;
+use middleware::JwtConfig;
 use sqlx::postgres::PgPoolOptions;
 use state::AppState;
 use tokio::net::TcpListener;
@@ -28,6 +30,10 @@ async fn main() -> Result<()> {
     let addr = format!("{}:{}", host, port);
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+
+    // 创建 JWT 配置
+    let jwt_config = JwtConfig::new(&jwt_secret);
 
     // 创建数据库连接池
     tracing::info!("正在连接数据库...");
@@ -41,7 +47,7 @@ async fn main() -> Result<()> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     // 创建应用状态
-    let state = AppState::new(pool);
+    let state = AppState::new(pool, jwt_config);
 
     // 创建路由
     let app = create_router(state);
@@ -59,7 +65,8 @@ fn create_router(state: AppState) -> Router {
     let api_routes = Router::new()
         .nest("/chat", handlers::chat_routes())
         .nest("/models", handlers::model_routes())
-        .nest("/conversations", handlers::conversation_routes());
+        .nest("/conversations", handlers::conversation_routes())
+        .nest("/user", handlers::user_routes());
 
     Router::new()
         .nest("/api", api_routes)
