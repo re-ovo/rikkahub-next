@@ -43,6 +43,11 @@ func main() {
 	// 初始化全局设置（带缓存）
 	services.InitSettings(db)
 
+	// 初始化 i18n
+	if err := services.InitI18n("locales"); err != nil {
+		log.Fatalf("Failed to init i18n: %v", err)
+	}
+
 	// 初始化服务
 	jwtService := services.NewJWTService(&cfg.JWT)
 	authService := services.NewAuthService(db, jwtService)
@@ -61,6 +66,7 @@ func main() {
 	app.Use(recover.New())
 	app.Use(logger.New())
 	app.Use(cors.New())
+	app.Use(middleware.I18n())
 
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
