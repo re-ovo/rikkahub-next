@@ -1,3 +1,17 @@
-# RikkaHub Desktop
+# RikkaHub
 
-跨平台高性能AI聊天客户端，基于Rust和GPUI构建
+跨平台高性能AI聊天客户端
+
+## 功能
+
+- WIP
+
+## 架构
+
+### 桌面端
+
+使用 Rust + GPUI 构建跨平台桌面端，高性能低占用
+
+### 后端
+
+基于 Golang 构建后端服务，方便多端同步和共享资源
