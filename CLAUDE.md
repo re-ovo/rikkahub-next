@@ -72,6 +72,38 @@ JWT_REFRESH_EXPIRES_DAYS=7
 - **Settings cache**: 5-minute TTL with auto-refresh
 - **Permission system**: Wildcard support (e.g., `model.*.use`, `*`)
 
+### Settings System
+
+**Model** (`models.Setting`):
+- **Key**: String primary key (e.g., `auth.allow_register`)
+- **Value**: JSONB field storing any JSON-serializable value
+- **Type**: Enum (`bool`, `string`, `int`, `json`)
+- **Description**: Optional human-readable description
+
+**Service** (`services.Settings`):
+- **Global singleton**: Initialized once via `InitSettings(db)`
+- **Cache**: In-memory map with 5-minute TTL and auto-refresh
+- **Thread-safe**: Uses `sync.RWMutex` for concurrent access
+- **Generic methods**: `GetBool()`, `GetString()`, `GetInt()`, `Set()`
+- **Typed setters**: `SetBool()`, `SetString()`, `SetInt()`
+
+**Usage Example**:
+```go
+// Get global instance
+settings := services.GetSettings()
+
+// Using convenience accessors
+if settings.Auth().AllowRegister() {
+    // handle registration
+}
+
+// Direct access
+maxMessages := settings.GetInt("chat.max_context_messages", 50)
+
+// Update setting (updates both cache and DB)
+err := settings.SetBool("auth.allow_register", false)
+```
+
 ### Default User Groups
 - `guest`: Limited permissions (`conversation.create`, `conversation.read`, `model.gpt-3.5.use`)
 - `user` (default): Standard permissions (`conversation.*`, `model.*.use`)
