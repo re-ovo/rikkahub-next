@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
+	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/reovo/rikkahub/server/internal/config"
 	"github.com/reovo/rikkahub/server/internal/database"
@@ -13,6 +13,7 @@ import (
 	"github.com/reovo/rikkahub/server/internal/middleware"
 	"github.com/reovo/rikkahub/server/internal/models"
 	"github.com/reovo/rikkahub/server/internal/services"
+	"github.com/reovo/rikkahub/server/pkg/logging"
 )
 
 func main() {
@@ -22,29 +23,37 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
+	// 初始化 slog
+	logging.Init(cfg.Debug)
+	logger := logging.GetLogger()
+
 	// 连接数据库
-	db, err := database.New(&cfg.Database)
+	db, err := database.New(&cfg.Database, cfg.Debug)
 	if err != nil {
+		logger.Error("Failed to connect database", slog.String("error", err.Error()))
 		log.Fatalf("Failed to connect database: %v", err)
 	}
 
 	// 自动迁移
 	if err := models.AutoMigrate(db); err != nil {
+		logger.Error("Failed to migrate database", slog.String("error", err.Error()))
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
 	// 初始化默认数据
 	if err := models.Seed(db); err != nil {
+		logger.Error("Failed to seed database", slog.String("error", err.Error()))
 		log.Fatalf("Failed to seed database: %v", err)
 	}
 
-	log.Println("Database connected and migrated successfully")
+	logger.Info("Database connected and migrated successfully")
 
 	// 初始化全局设置（带缓存）
 	services.InitSettings(db)
 
 	// 初始化 i18n
 	if err := services.InitI18n("locales"); err != nil {
+		logger.Error("Failed to init i18n", slog.String("error", err.Error()))
 		log.Fatalf("Failed to init i18n: %v", err)
 	}
 
@@ -64,7 +73,7 @@ func main() {
 
 	// Middleware
 	app.Use(recover.New())
-	app.Use(logger.New())
+	app.Use(logging.FiberMiddleware(logger)) // 使用 slog 中间件
 	app.Use(cors.New())
 	app.Use(middleware.I18n())
 
@@ -79,6 +88,6 @@ func main() {
 	authHandler.RegisterRoutes(app, authMiddleware)
 
 	// Start server
-	log.Printf("Server starting on port %s", cfg.Server.Port)
+	logger.Info("Server starting", slog.String("port", cfg.Server.Port))
 	log.Fatal(app.Listen(":" + cfg.Server.Port))
 }

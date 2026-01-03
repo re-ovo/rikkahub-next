@@ -12,6 +12,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
+	Debug    bool
 }
 
 type ServerConfig struct {
@@ -43,6 +44,7 @@ func Load() (*Config, error) {
 			AccessExpiresIn:  time.Duration(getEnvInt("JWT_ACCESS_EXPIRES_HOURS", 24)) * time.Hour,
 			RefreshExpiresIn: time.Duration(getEnvInt("JWT_REFRESH_EXPIRES_DAYS", 7)) * 24 * time.Hour,
 		},
+		Debug: getEnv("DEBUG", "false") == "true",
 	}, nil
 }
 
