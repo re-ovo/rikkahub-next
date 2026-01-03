@@ -40,6 +40,9 @@ func main() {
 
 	log.Println("Database connected and migrated successfully")
 
+	// 初始化全局设置（带缓存）
+	services.InitSettings(db)
+
 	// 初始化服务
 	jwtService := services.NewJWTService(&cfg.JWT)
 	authService := services.NewAuthService(db, jwtService)

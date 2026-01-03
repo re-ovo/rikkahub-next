@@ -1,6 +1,9 @@
 package models
 
 import (
+	"encoding/json"
+
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -12,6 +15,7 @@ func AllModels() []interface{} {
 		&Group{},
 		&GroupPermission{},
 		&UserGroup{},
+		&Setting{},
 	}
 }
 
@@ -80,6 +84,48 @@ func Seed(db *gorm.DB) error {
 				if err := db.Create(&permission).Error; err != nil {
 					return err
 				}
+			}
+		}
+	}
+
+	// 默认设置
+	if err := seedSettings(db); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// seedSettings 初始化默认设置
+func seedSettings(db *gorm.DB) error {
+	settings := []struct {
+		Key         string
+		Value       interface{}
+		Type        SettingType
+		Description string
+	}{
+		{"auth.allow_register", true, SettingTypeBool, "是否允许新用户注册"},
+		{"auth.allow_oauth", true, SettingTypeBool, "是否允许 OAuth 登录"},
+		{"auth.default_group", "user", SettingTypeString, "新用户默认用户组"},
+		{"chat.max_context_messages", 50, SettingTypeInt, "聊天最大上下文消息数"},
+		{"chat.default_model", "gpt-4", SettingTypeString, "默认 AI 模型"},
+	}
+
+	for _, s := range settings {
+		var existing Setting
+		if err := db.Where("key = ?", s.Key).First(&existing).Error; err == gorm.ErrRecordNotFound {
+			jsonValue, err := json.Marshal(s.Value)
+			if err != nil {
+				return err
+			}
+			setting := Setting{
+				Key:         s.Key,
+				Value:       datatypes.JSON(jsonValue),
+				Type:        s.Type,
+				Description: s.Description,
+			}
+			if err := db.Create(&setting).Error; err != nil {
+				return err
 			}
 		}
 	}
