@@ -19,12 +19,7 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
+	DSN string
 }
 
 type JWTConfig struct {
@@ -41,12 +36,7 @@ func Load() (*Config, error) {
 			Port: getEnv("SERVER_PORT", "3000"),
 		},
 		Database: DatabaseConfig{
-			Host:     getEnv("DB_HOST", "localhost"),
-			Port:     getEnv("DB_PORT", "5432"),
-			User:     getEnv("DB_USER", "postgres"),
-			Password: getEnv("DB_PASSWORD", ""),
-			DBName:   getEnv("DB_NAME", "rikkahub"),
-			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+			DSN: getEnv("DATABASE_URL", "postgres://postgres@localhost:5432/rikkahub?sslmode=disable"),
 		},
 		JWT: JWTConfig{
 			Secret:           getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
@@ -54,15 +44,6 @@ func Load() (*Config, error) {
 			RefreshExpiresIn: time.Duration(getEnvInt("JWT_REFRESH_EXPIRES_DAYS", 7)) * 24 * time.Hour,
 		},
 	}, nil
-}
-
-func (c *DatabaseConfig) DSN() string {
-	return "host=" + c.Host +
-		" user=" + c.User +
-		" password=" + c.Password +
-		" dbname=" + c.DBName +
-		" port=" + c.Port +
-		" sslmode=" + c.SSLMode
 }
 
 func getEnv(key, defaultValue string) string {
