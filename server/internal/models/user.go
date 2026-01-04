@@ -27,8 +27,7 @@ type User struct {
 	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
 
 	// 关联
-	OAuthAccounts []OAuthAccount `gorm:"foreignKey:UserID" json:"oauth_accounts,omitempty"`
-	Groups        []Group        `gorm:"many2many:user_groups" json:"groups,omitempty"`
+	Groups []Group `gorm:"many2many:user_groups" json:"groups,omitempty"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {

@@ -11,7 +11,6 @@ import (
 func AllModels() []interface{} {
 	return []interface{}{
 		&User{},
-		&OAuthAccount{},
 		&Group{},
 		&GroupPermission{},
 		&UserGroup{},
@@ -105,7 +104,6 @@ func seedSettings(db *gorm.DB) error {
 		Description string
 	}{
 		{"auth.allow_register", true, SettingTypeBool, "是否允许新用户注册"},
-		{"auth.allow_oauth", true, SettingTypeBool, "是否允许 OAuth 登录"},
 		{"auth.default_group", "user", SettingTypeString, "新用户默认用户组"},
 		{"chat.max_context_messages", 50, SettingTypeInt, "聊天最大上下文消息数"},
 		{"chat.default_model", "gpt-4", SettingTypeString, "默认 AI 模型"},
