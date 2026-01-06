@@ -18,4 +18,4 @@ tracing-subscriber.workspace = true
 reqwest.workspace = true
 gpui.workspace = true
 gpui-component.workspace = true
-uuid = "1.19.0"
+uuid.workspace = true
