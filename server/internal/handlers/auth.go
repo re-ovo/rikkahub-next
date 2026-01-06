@@ -27,9 +27,9 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	}
 
 	// 简单验证
-	if input.Username == "" || input.Email == "" || input.Password == "" {
+	if input.Username == "" || input.Password == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "username, email and password are required",
+			"error": "username and password are required",
 		})
 	}
 

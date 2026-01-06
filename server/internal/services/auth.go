@@ -26,7 +26,7 @@ func NewAuthService(db *gorm.DB, jwtService *JWTService) *AuthService {
 
 type RegisterInput struct {
 	Username string `json:"username" validate:"required,min=3,max=50"`
-	Email    string `json:"email" validate:"required,email"`
+	Email    string `json:"email" validate:"omitempty,email"`
 	Password string `json:"password" validate:"required,min=6"`
 	Nickname string `json:"nickname"`
 }
@@ -45,7 +45,11 @@ type AuthResponse struct {
 func (s *AuthService) Register(input *RegisterInput) (*AuthResponse, error) {
 	// 检查用户名是否已存在
 	var existingUser models.User
-	if err := s.db.Where("username = ? OR email = ?", input.Username, input.Email).First(&existingUser).Error; err == nil {
+	query := s.db.Where("username = ?", input.Username)
+	if input.Email != "" {
+		query = query.Or("email = ?", input.Email)
+	}
+	if err := query.First(&existingUser).Error; err == nil {
 		return nil, ErrUserExists
 	}
 
@@ -61,11 +65,15 @@ func (s *AuthService) Register(input *RegisterInput) (*AuthResponse, error) {
 	}
 
 	user := &models.User{
-		Username:     &input.Username,
-		Email:        input.Email,
+		Username:     input.Username,
 		PasswordHash: &hashedPassword,
 		Nickname:     nickname,
 		Status:       models.UserStatusActive,
+	}
+
+	// 设置邮箱（如果提供）
+	if input.Email != "" {
+		user.Email = &input.Email
 	}
 
 	// 创建用户
@@ -90,11 +98,20 @@ func (s *AuthService) Register(input *RegisterInput) (*AuthResponse, error) {
 // Login 用户登录
 func (s *AuthService) Login(input *LoginInput) (*AuthResponse, error) {
 	var user models.User
-	if err := s.db.Where("username = ? OR email = ?", input.Login, input.Login).First(&user).Error; err != nil {
+	// 优先查找用户名，如果失败则尝试邮箱
+	err := s.db.Where("username = ?", input.Login).First(&user).Error
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrInvalidCredentials
+			// 尝试用邮箱查找
+			if err := s.db.Where("email = ?", input.Login).First(&user).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, ErrInvalidCredentials
+				}
+				return nil, err
+			}
+		} else {
+			return nil, err
 		}
-		return nil, err
 	}
 
 	// 检查是否有密码（OAuth 用户可能没有密码）
