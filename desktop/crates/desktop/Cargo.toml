@@ -19,3 +19,4 @@ reqwest.workspace = true
 gpui.workspace = true
 gpui-component.workspace = true
 uuid.workspace = true
+muda = "0.17.1"

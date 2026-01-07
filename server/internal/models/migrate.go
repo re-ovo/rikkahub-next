@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 
+	"github.com/reovo/rikkahub/server/pkg/crypto"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -87,6 +88,11 @@ func Seed(db *gorm.DB) error {
 		}
 	}
 
+	// 默认管理员用户
+	if err := seedDefaultAdmin(db); err != nil {
+		return err
+	}
+
 	// 默认设置
 	if err := seedSettings(db); err != nil {
 		return err
@@ -125,6 +131,48 @@ func seedSettings(db *gorm.DB) error {
 			if err := db.Create(&setting).Error; err != nil {
 				return err
 			}
+		}
+	}
+
+	return nil
+}
+
+// seedDefaultAdmin 创建默认管理员用户
+func seedDefaultAdmin(db *gorm.DB) error {
+	var adminUser User
+	// 检查是否已存在 admin 用户
+	if err := db.Where("username = ?", "admin").First(&adminUser).Error; err == gorm.ErrRecordNotFound {
+		// 哈希密码
+		passwordHash, err := crypto.HashPassword("admin")
+		if err != nil {
+			return err
+		}
+
+		// 创建管理员用户
+		adminUser = User{
+			Username:     "admin",
+			PasswordHash: &passwordHash,
+			Nickname:     "系统管理员",
+			Avatar:       "",
+			Status:       UserStatusActive,
+		}
+		if err := db.Create(&adminUser).Error; err != nil {
+			return err
+		}
+
+		// 获取 admin 用户组
+		var adminGroup Group
+		if err := db.Where("name = ?", "admin").First(&adminGroup).Error; err != nil {
+			return err
+		}
+
+		// 将用户添加到 admin 组
+		userGroup := UserGroup{
+			UserID:  adminUser.ID,
+			GroupID: adminGroup.ID,
+		}
+		if err := db.Create(&userGroup).Error; err != nil {
+			return err
 		}
 	}
 

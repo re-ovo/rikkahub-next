@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/reovo/rikkahub/server/internal/models"
+	"github.com/reovo/rikkahub/server/pkg/crypto"
 	"gorm.io/gorm"
 )
 
@@ -54,7 +55,7 @@ func (s *AuthService) Register(input *RegisterInput) (*AuthResponse, error) {
 	}
 
 	// 哈希密码
-	hashedPassword, err := HashPassword(input.Password)
+	hashedPassword, err := crypto.HashPassword(input.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +121,7 @@ func (s *AuthService) Login(input *LoginInput) (*AuthResponse, error) {
 	}
 
 	// 验证密码
-	match, err := VerifyPassword(input.Password, *user.PasswordHash)
+	match, err := crypto.VerifyPassword(input.Password, *user.PasswordHash)
 	if err != nil || !match {
 		return nil, ErrInvalidCredentials
 	}
