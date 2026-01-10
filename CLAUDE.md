@@ -69,7 +69,7 @@ cargo clippy --workspace
 
 ## 开发环境配置
 
-服务端需要配置环境变量，参考 `crates/server/.env.example`：
+服务端需要配置环境变量，参考 `.env.example`：
 
 ```bash
 SERVER_PORT=3000
