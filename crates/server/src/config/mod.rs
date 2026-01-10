@@ -5,6 +5,7 @@ use std::env;
 pub struct Config {
     pub server: ServerConfig,
     pub database: DatabaseConfig,
+    pub jwt: JwtConfig,
 }
 
 #[derive(Debug, Clone)]
@@ -17,6 +18,12 @@ pub struct ServerConfig {
 pub struct DatabaseConfig {
     pub url: String,
     pub max_connections: u32,
+}
+
+#[derive(Debug, Clone)]
+pub struct JwtConfig {
+    pub secret: String,
+    pub expires_in: i64,
 }
 
 impl Config {
@@ -39,6 +46,14 @@ impl Config {
                     .ok()
                     .and_then(|v| v.parse().ok())
                     .unwrap_or(10),
+            },
+            jwt: JwtConfig {
+                secret: env::var("JWT_SECRET")
+                    .expect("JWT_SECRET 环境变量必须设置"),
+                expires_in: env::var("JWT_EXPIRES_IN")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(86400), // 默认 24 小时
             },
         })
     }

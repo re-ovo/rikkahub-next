@@ -51,3 +51,9 @@ directories = "6.0"
 
 # 密码哈希
 argon2 = "0.5"
+
+# JWT
+jsonwebtoken = "9"
+
+# 测试
+axum-test = "16"

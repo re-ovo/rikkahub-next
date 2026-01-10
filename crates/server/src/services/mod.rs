@@ -1,2 +1,3 @@
-// 业务逻辑服务模块
-// 待实现
+pub mod user;
+
+pub use user::UserService;

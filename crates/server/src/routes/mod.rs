@@ -1,8 +1,10 @@
-use axum::{Json, Router, routing::get};
+use axum::{Json, Router, routing::{get, post}};
 use serde_json::{Value, json};
 use sqlx::PgPool;
 
 use crate::config::Config;
+use crate::handlers::{login, me};
+use crate::middleware::AppState;
 
 async fn health_check() -> Json<Value> {
     Json(json!({
@@ -12,7 +14,11 @@ async fn health_check() -> Json<Value> {
 }
 
 pub fn create_router(pool: PgPool, config: Config) -> Router {
+    let state = AppState { pool, config };
+
     Router::new()
         .route("/health", get(health_check))
-        .with_state((pool, config))
+        .route("/auth/login", post(login))
+        .route("/auth/me", get(me))
+        .with_state(state)
 }
