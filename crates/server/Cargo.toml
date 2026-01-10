@@ -1,0 +1,34 @@
+[package]
+name = "server"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "rikkahub-server"
+path = "src/main.rs"
+
+[dependencies]
+# 内部
+core.workspace = true
+
+# Web 框架
+axum.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+
+# 数据库
+sqlx.workspace = true
+
+# 通用
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+dotenvy.workspace = true
+
+[dev-dependencies]
