@@ -9,7 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 # 内部
-core.workspace = true
+shared.workspace = true
 
 # Web 框架
 axum.workspace = true

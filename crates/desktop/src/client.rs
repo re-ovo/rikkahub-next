@@ -1,7 +1,7 @@
 //! HTTP 客户端，用于与后端 API 通信
 
 use anyhow::Result;
-use core::{ChatRequest, ChatResponse, Conversation, Model};
+use shared::{ChatRequest, ChatResponse, Conversation, Model};
 
 /// API 客户端
 pub struct ApiClient {

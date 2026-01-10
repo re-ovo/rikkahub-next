@@ -38,7 +38,7 @@ cargo clippy --workspace
 
 ### Workspace 结构
 
-- `crates/core` - 核心业务逻辑库，包含聊天消息模型（Message, ChatRequest, ChatResponse）、错误类型定义
+- `crates/shared` - 共享代码库，包含聊天消息模型（Message, ChatRequest, ChatResponse）、错误类型定义
 - `crates/desktop` - 桌面客户端，使用 GPUI 框架构建原生界面，输出二进制 `rikkahub`
 - `crates/server` - 后端服务，使用 Axum + SQLx + PostgreSQL，输出二进制 `rikkahub-server`
 

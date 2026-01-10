@@ -8,7 +8,7 @@ name = "rikkahub"
 path = "src/main.rs"
 
 [dependencies]
-core.workspace = true
+shared.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true

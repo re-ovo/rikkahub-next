@@ -1265,17 +1265,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "core"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
- "uuid",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1601,13 +1590,13 @@ name = "desktop"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "core",
  "gpui",
  "gpui-component",
  "muda",
  "reqwest",
  "serde",
  "serde_json",
+ "shared",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -6171,11 +6160,11 @@ dependencies = [
  "axum",
  "axum-test",
  "chrono",
- "core",
  "dotenvy",
  "jsonwebtoken",
  "serde",
  "serde_json",
+ "shared",
  "sqlx",
  "thiserror 2.0.17",
  "tokio",
@@ -6221,6 +6210,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "shared"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "uuid",
 ]
 
 [[package]]

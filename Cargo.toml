@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/core",
+    "crates/shared",
     "crates/desktop",
     "crates/server",
 ]
@@ -13,7 +13,7 @@ edition = "2024"
 
 [workspace.dependencies]
 # 内部 crates
-core = { path = "crates/core" }
+shared = { path = "crates/shared" }
 
 # 通用
 anyhow = "1"
