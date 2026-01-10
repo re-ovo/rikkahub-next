@@ -30,5 +30,6 @@ tracing-subscriber.workspace = true
 uuid.workspace = true
 chrono.workspace = true
 dotenvy.workspace = true
+argon2.workspace = true
 
 [dev-dependencies]

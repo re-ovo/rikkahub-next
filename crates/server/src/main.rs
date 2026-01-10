@@ -18,7 +18,7 @@ async fn main() -> Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                "server=debug,tower_http=debug,axum::rejection=trace,sqlx=info".into()
+                "rikkahub_server=debug,tower_http=debug,axum::rejection=trace,sqlx=info".into()
             }),
         )
         .with(tracing_subscriber::fmt::layer())
@@ -32,6 +32,8 @@ async fn main() -> Result<()> {
 
     database::run_migrations(&pool).await?;
     tracing::info!("数据库迁移完成");
+
+    database::seed(&pool).await?;
 
     let app = routes::create_router(pool, config.clone())
         .layer(CorsLayer::permissive())

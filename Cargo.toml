@@ -48,3 +48,6 @@ uuid = { version = "1.19", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 keyring = "3.6"
 directories = "6.0"
+
+# 密码哈希
+argon2 = "0.5"
